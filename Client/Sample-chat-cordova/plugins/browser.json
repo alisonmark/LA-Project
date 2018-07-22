@@ -1,0 +1,24 @@
+{
+  "prepare_queue": {
+    "installed": [],
+    "uninstalled": []
+  },
+  "config_munge": {
+    "files": {}
+  },
+  "installed_plugins": {
+    "cordova-plugin-websocket": {
+      "PACKAGE_NAME": "sample.chat"
+    },
+    "cordova-plugin-whitelist": {
+      "PACKAGE_NAME": "sample.chat"
+    },
+    "cordova-plugin-device": {
+      "PACKAGE_NAME": "sample.chat"
+    },
+    "cordova-custom-config": {
+      "PACKAGE_NAME": "sample.chat"
+    }
+  },
+  "dependent_plugins": {}
+}
