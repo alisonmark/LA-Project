@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Session api</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"> {% load staticfiles %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="{% static './jquery.cookie.js' %}"></script>
+    <script src="{% static './main.js' %}"></script>
+</head>
+
+<body>
+    <div>
+        <button class="apireq">click me </button>
+        <text id="abc"> </text>
+    </div>
+    <div id="jsonresp" style="margin-top: 100px">
+        <p><label> Application Id :</label> <span id="first_name"></span></p>
+        <p><label> Auth Key :</label> <span id="last_name"></span></p>
+        <p><label> Nonce :</label> <span id="age"></span></p>
+        <p><label> User ID : </label> <span id="gender"></span></p>
+    </div>
+</body>
+
+</html>

@@ -15,8 +15,6 @@ class PostListSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 # API get detail, update, delete
-
-
 class PostDetailUpdateAPIView(viewsets.GenericViewSet,
                               RetrieveUpdateDestroyAPIView):
     queryset = Post.objects.all()

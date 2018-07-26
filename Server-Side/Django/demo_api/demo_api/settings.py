@@ -24,6 +24,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'tv%7op0ufc!6+ickv-%(aoymc)lwtq%az@ap&v^k!t)l=ucjnh'
 
+SECURE_SSL_REDIRECT = True
+# SECURE_SSL_REDIRECT = False
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -42,7 +45,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'restful',
     'session',
+    'authentication',
     'corsheaders',
+    'sslserver',
 ]
 
 MIDDLEWARE = [
@@ -194,4 +199,3 @@ CORS_PREFLIGHT_MAX_AGE = 86400
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_MODEL = None
-

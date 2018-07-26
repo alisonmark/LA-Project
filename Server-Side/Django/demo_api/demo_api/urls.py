@@ -18,6 +18,8 @@ from django.urls import path
 from django.conf.urls import url, include
 from rest_framework import routers
 from restful.views import PostListCreateAPIView, PostDetailUpdateAPIView
+from session import views
+from authentication import authViews
 # from session.views import SessionDetailUpdateAPIView, SessionListCreateAPIView
 
 router = routers.SimpleRouter()
@@ -27,7 +29,12 @@ router.register('posts', PostDetailUpdateAPIView, base_name="")
 # router.register('session.json', SessionListCreateAPIView, base_name="")
 
 urlpatterns = [
+    url('^$', views.homepage),
     path('admin/', admin.site.urls),
     url('^api/', include(router.urls)),
-    path('api/', include('session.urls'))
+    path('api/', include('session.urls')),
+    url('api/session.json', views.Get_Session_List.as_view()),
+    url('api/session.json', views.Get_Session_List.as_view()),
+    # url('api/login.json', authViews.Get_Login_List.as_view()),
+    url('api/login.json', authViews.Get_Login_List.as_view()),
 ]
