@@ -14,6 +14,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_protect
+import json
 
 # class LoginListSerializer(serializers.ModelSerializer):
 #     class Meta:
@@ -25,11 +26,9 @@ class Get_Login_List(APIView):
 
     # @csrf_protect
     def post(self, request):
-        # sessions = Session.objects.all()
-        # serialized = SessionListSerializer(sessions, many=True)
-        # return Response(serialized.data)
-
-        # response = get_response(request)
-        strData = request.data
-        # obj = {"ABC":strData}
-        return Response(strData,status=status.HTTP_201_CREATED)
+        returnData = json.dumps(request.data)
+        xdata = json.loads(returnData)
+        login = xdata['login']
+        pw = xdata['password']
+        returnObj = { "login":login, "password":pw}
+        return Response(returnObj,status=status.HTTP_201_CREATED)

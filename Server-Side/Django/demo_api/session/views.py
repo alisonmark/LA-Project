@@ -23,7 +23,7 @@ from hashlib import sha1
 import json
 import requests
 import hashlib
-import hmac
+import json
 
 
 class SessionListSerializer(serializers.ModelSerializer):
@@ -39,12 +39,14 @@ class Get_Session_List(APIView):
         return Response(serialized.data)
 
     def post(self, request):
-        # sessions = Session.objects.all()
-        # serialized = SessionListSerializer(sessions, many=True)
-        # return Response(serialized.data)
-        strData = request.data
-        obj = { "name":"John", "age":30, "user":strData}
-        return Response(obj,status=status.HTTP_201_CREATED)
+        # ================== Convert request to json ==================
+        # returnData = json.dumps(request.data)
+        # xdata = json.loads(returnData)
+        # returnObj = { "login":xdata['user']['login'],"password":xdata['user']['password']}
+
+        returnData = dict(request.data)
+        returnObj = { "login":returnData['user''login'],"password":returnData['user''password']}
+        return Response(returnObj,status=status.HTTP_202_ACCEPTED)
 
 def homepage(request):
     return render(request, 'home.html')

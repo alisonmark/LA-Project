@@ -203,17 +203,24 @@ function showUsers(userLogin, userId) {
 
 // show modal window with users
 function showNewDialogPopup() {
+    var obj = { "name": "John", "age": 30, "city": "New York" };
+    var myJSON = JSON.stringify(obj);
+    console.log('My String : ' + myJSON)
     $.ajax({
         url: 'http://localhost:8989/api/session.json',
         type: 'POST',
-        headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Content-Type': 'text/plain'
+        contentType: 'application/json; charset=utf-8',
+        // headers: {
+        //     'Access-Control-Allow-Origin': '*',
+        //     'Content-Type': 'text/plain'
+        // },
+        data: myJSON,
+        success: function(data) {
+            respName = "<h1>" + data.age + "</h1>"
+            console.log('respName : ' + respName)
+                // $('#mcs_container').text(`<h1>${data.name}</h1>`)
+            $('#mcs_container div div#messages-list').html(`<h1>${data.name}</h1>`);
         },
-        data: {
-            'uid': 36,
-        },
-        success: function() { $('#mcs_container').html('<h1>Login successfull</h1>'); },
         error: function() { $('#mcs_container').html('<h1>Login error</h1>'); },
     });
     // success: function() { $('#mcs_container').html('<h1>Login successfull</h1>'); },
