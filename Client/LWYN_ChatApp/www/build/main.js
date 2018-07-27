@@ -40,21 +40,21 @@ LAApp.prototype = {
         var Auth = require('auth');
         this.auth = new Auth(this.service);
 
-        // if (Utils.getEnv().browser) {
-        //     /** add adapter.js*/
-        //     require('webrtc-adapter');
+        if (Utils.getEnv().browser) {
+            /** add adapter.js*/
+            require('webrtc-adapter');
 
-        //     /** add WebRTC API if API is avaible */
-        //     if (Utils.isWebRTCAvailble()) {
-        //         var WebRTCClient = require('./modules/webrtc/WebRTCClient');
-        //         this.webrtc = new WebRTCClient(this.service, this.chat.connection);
-        //         this.chat.webrtcSignalingProcessor = this.webrtc.signalingProcessor;
-        //     } else {
-        //         this.webrtc = false;
-        //     }
-        // } else {
-        //     this.webrtc = false;
-        // }
+            /** add WebRTC API if API is avaible */
+            if (Utils.isWebRTCAvailble()) {
+                var WebRTCClient = require('./modules/webrtc/WebRTCClient');
+                this.webrtc = new WebRTCClient(this.service, this.chat.connection);
+                this.chat.webrtcSignalingProcessor = this.webrtc.signalingProcessor;
+            } else {
+                this.webrtc = false;
+            }
+        } else {
+            this.webrtc = false;
+        }
 
         // <!-- =================================================== BY Default =================================================== -->
         // /** include dependencies */

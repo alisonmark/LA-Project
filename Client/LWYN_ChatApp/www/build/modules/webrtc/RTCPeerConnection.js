@@ -10,8 +10,8 @@
  */
 
 /** Modules */
-var config = require('../../qbConfig');
-var Helpers = require('./qbWebRTCHelpers');
+var config = require('../../config');
+var Helpers = require('./WebRTCHelpers');
 
 var transform = require('sdp-transform');
 
@@ -63,7 +63,7 @@ RTCPeerConnection.prototype._init = function(delegate, userID, sessionID, type) 
     this.iceCandidates = [];
 };
 
-RTCPeerConnection.prototype.release = function(){
+RTCPeerConnection.prototype.release = function() {
     this._clearDialingTimer();
     this._clearStatsReportTimer();
 
@@ -77,7 +77,7 @@ RTCPeerConnection.prototype.release = function(){
     }
 };
 
-RTCPeerConnection.prototype.updateRemoteSDP = function(newSDP){
+RTCPeerConnection.prototype.updateRemoteSDP = function(newSDP) {
     if (!newSDP) {
         throw new Error("sdp string can't be empty.");
     } else {
@@ -85,21 +85,21 @@ RTCPeerConnection.prototype.updateRemoteSDP = function(newSDP){
     }
 };
 
-RTCPeerConnection.prototype.getRemoteSDP = function(){
+RTCPeerConnection.prototype.getRemoteSDP = function() {
     return this.remoteSDP;
 };
 
 RTCPeerConnection.prototype.setRemoteSessionDescription = function(type, remoteSessionDescription, callback) {
     var self = this,
-        desc = new RTCSessionDescription({sdp: remoteSessionDescription, type: type}),
+        desc = new RTCSessionDescription({ sdp: remoteSessionDescription, type: type }),
         ffVersion = Helpers.getVersionFirefox();
-        
+
     if (ffVersion !== null && (ffVersion === 56 || ffVersion === 57) && !self.delegate.bandwidth) {
         desc.sdp = _modifySDPforFixIssueFFAndFreezes(desc.sdp);
     } else {
         desc.sdp = setMediaBitrate(desc.sdp, 'video', self.delegate.bandwidth);
     }
-        
+
     function successCallback(desc) {
         callback(null);
     }
@@ -111,7 +111,7 @@ RTCPeerConnection.prototype.setRemoteSessionDescription = function(type, remoteS
     self.setRemoteDescription(desc).then(successCallback, errorCallback);
 };
 
-RTCPeerConnection.prototype.addLocalStream = function(localStream){
+RTCPeerConnection.prototype.addLocalStream = function(localStream) {
     if (localStream) {
         this.addStream(localStream);
     } else {
@@ -151,11 +151,11 @@ RTCPeerConnection.prototype.getAndSetLocalSessionDescription = function(callType
          * callType === 2 is audio only
          */
         var ffVersion = Helpers.getVersionFirefox();
-        
+
         if (ffVersion !== null && ffVersion < 55 && callType === 2 && self.type === 'offer') {
             desc.sdp = _modifySDPforFixIssue(desc.sdp);
         }
-        
+
         self.setLocalDescription(desc).then(function() {
             callback(null);
         }).catch(function(error) {
@@ -180,7 +180,7 @@ RTCPeerConnection.prototype.addCandidates = function(iceCandidates) {
         this.addIceCandidate(
             new RTCIceCandidate(candidate),
             function() {},
-            function(error){
+            function(error) {
                 Helpers.traceError("Error on 'addIceCandidate': " + error);
             }
         );
@@ -195,7 +195,7 @@ RTCPeerConnection.prototype.toString = function sessionToString() {
  * CALLBACKS
  */
 RTCPeerConnection.prototype.onSignalingStateCallback = function() {
-    if (this.signalingState === 'stable' && this.iceCandidates.length > 0){
+    if (this.signalingState === 'stable' && this.iceCandidates.length > 0) {
         this.delegate.processIceCandidates(this, this.iceCandidates);
         this.iceCandidates.length = 0;
     }
@@ -252,7 +252,7 @@ RTCPeerConnection.prototype.onIceConnectionStateCallback = function() {
      * 'disconnected' happens in a case when a user has killed an application (for example, on iOS/Android via task manager).
      * So we should notify our user about it.
      */
-    if (typeof this.delegate._onSessionConnectionStateChangedListener === 'function'){
+    if (typeof this.delegate._onSessionConnectionStateChangedListener === 'function') {
         var connectionState = null;
 
         if (Helpers.getVersionSafari() >= 11) {
@@ -295,7 +295,7 @@ RTCPeerConnection.prototype.onIceConnectionStateCallback = function() {
                 }
                 break;
 
-            // TODO: this state doesn't fires on Safari 11
+                // TODO: this state doesn't fires on Safari 11
             case 'closed':
                 this._clearWaitingReconnectTimer();
                 this.state = RTCPeerConnection.State.CLOSED;
@@ -315,8 +315,8 @@ RTCPeerConnection.prototype.onIceConnectionStateCallback = function() {
 /**
  * PRIVATE
  */
-RTCPeerConnection.prototype._clearStatsReportTimer = function(){
-    if (this.statsReportTimer){
+RTCPeerConnection.prototype._clearStatsReportTimer = function() {
+    if (this.statsReportTimer) {
         clearInterval(this.statsReportTimer);
         this.statsReportTimer = null;
     }
@@ -350,7 +350,7 @@ RTCPeerConnection.prototype._getStatsWrap = function() {
 };
 
 RTCPeerConnection.prototype._clearWaitingReconnectTimer = function() {
-    if(this.waitingReconnectTimeoutCallback){
+    if (this.waitingReconnectTimeoutCallback) {
         Helpers.trace('_clearWaitingReconnectTimer');
         clearTimeout(this.waitingReconnectTimeoutCallback);
         this.waitingReconnectTimeoutCallback = null;
@@ -375,8 +375,8 @@ RTCPeerConnection.prototype._startWaitingReconnectTimer = function() {
     self.waitingReconnectTimeoutCallback = setTimeout(waitingReconnectTimeoutCallback, timeout);
 };
 
-RTCPeerConnection.prototype._clearDialingTimer = function(){
-    if(this.dialingTimer){
+RTCPeerConnection.prototype._clearDialingTimer = function() {
+    if (this.dialingTimer) {
         Helpers.trace('_clearDialingTimer');
 
         clearInterval(this.dialingTimer);
@@ -385,26 +385,26 @@ RTCPeerConnection.prototype._clearDialingTimer = function(){
     }
 };
 
-RTCPeerConnection.prototype._startDialingTimer = function(extension, withOnNotAnswerCallback){
+RTCPeerConnection.prototype._startDialingTimer = function(extension, withOnNotAnswerCallback) {
     var self = this;
-    var dialingTimeInterval = config.webrtc.dialingTimeInterval*1000;
+    var dialingTimeInterval = config.webrtc.dialingTimeInterval * 1000;
 
     Helpers.trace('_startDialingTimer, dialingTimeInterval: ' + dialingTimeInterval);
 
-    var _dialingCallback = function(extension, withOnNotAnswerCallback, skipIncrement){
-        if(!skipIncrement){
-            self.answerTimeInterval += config.webrtc.dialingTimeInterval*1000;
+    var _dialingCallback = function(extension, withOnNotAnswerCallback, skipIncrement) {
+        if (!skipIncrement) {
+            self.answerTimeInterval += config.webrtc.dialingTimeInterval * 1000;
         }
 
         Helpers.trace('_dialingCallback, answerTimeInterval: ' + self.answerTimeInterval);
 
-        if(self.answerTimeInterval >= config.webrtc.answerTimeInterval*1000){
+        if (self.answerTimeInterval >= config.webrtc.answerTimeInterval * 1000) {
             self._clearDialingTimer();
 
-            if(withOnNotAnswerCallback){
+            if (withOnNotAnswerCallback) {
                 self.delegate.processOnNotAnswer(self);
             }
-        }else{
+        } else {
             self.delegate.processCall(self, extension);
         }
     };
@@ -446,7 +446,7 @@ function _getStats(peer, lastResults, successCallback, errorCallback) {
 
             if (result.bytesReceived && result.type === 'inbound-rtp') {
                 item = statistic.remote[result.mediaType];
-                item.bitrate = _getBitratePerSecond(result, lastResults, false);   
+                item.bitrate = _getBitratePerSecond(result, lastResults, false);
                 item.bytesReceived = result.bytesReceived;
                 item.packetsReceived = result.packetsReceived;
                 item.timestamp = result.timestamp;
@@ -468,7 +468,7 @@ function _getStats(peer, lastResults, successCallback, errorCallback) {
                     item.protocol = result.transport;
                     item.ip = result.ipAddress;
                     item.port = result.portNumber;
-                } else if (!Helpers.getVersionFirefox()) {                 
+                } else if (!Helpers.getVersionFirefox()) {
                     item.protocol = result.protocol;
                     item.ip = result.ip;
                     item.port = result.port;
@@ -488,7 +488,7 @@ function _getStats(peer, lastResults, successCallback, errorCallback) {
                     item = statistic.local.video;
                     item.frameHeight = result.frameHeight;
                     item.frameWidth = result.frameWidth;
-                    item.framesPerSecond = _getFramesPerSecond(result, lastResults, true);  
+                    item.framesPerSecond = _getFramesPerSecond(result, lastResults, true);
                 }
             }
         });
@@ -562,10 +562,10 @@ function setMediaBitrate(sdp, media, bitrate) {
     var lines = sdp.split('\n'),
         line = -1,
         modifier = Helpers.getVersionFirefox() ? 'TIAS' : 'AS',
-        amount = Helpers.getVersionFirefox() ? bitrate*1024 : bitrate;
+        amount = Helpers.getVersionFirefox() ? bitrate * 1024 : bitrate;
 
     for (var i = 0; i < lines.length; i++) {
-        if (lines[i].indexOf("m="+media) === 0) {
+        if (lines[i].indexOf("m=" + media) === 0) {
             line = i;
             break;
         }
@@ -577,19 +577,19 @@ function setMediaBitrate(sdp, media, bitrate) {
 
     line++;
 
-    while(lines[line].indexOf('i=') === 0 || lines[line].indexOf('c=') === 0) {
+    while (lines[line].indexOf('i=') === 0 || lines[line].indexOf('c=') === 0) {
         line++;
     }
 
     if (lines[line].indexOf('b') === 0) {
-        lines[line] = 'b='+modifier+':'+amount;
+        lines[line] = 'b=' + modifier + ':' + amount;
         return lines.join('\n');
     }
 
     var newLines = lines.slice(0, line);
-    newLines.push('b='+modifier+':'+amount);
+    newLines.push('b=' + modifier + ':' + amount);
     newLines = newLines.concat(lines.slice(line, lines.length));
-    
+
     return newLines.join('\n');
 }
 

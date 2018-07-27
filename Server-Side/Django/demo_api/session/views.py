@@ -44,9 +44,10 @@ class Get_Session_List(APIView):
         # xdata = json.loads(returnData)
         # returnObj = { "login":xdata['user']['login'],"password":xdata['user']['password']}
 
-        returnData = dict(request.data)
-        returnObj = { "login":returnData['user''login'],"password":returnData['user''password']}
-        return Response(returnObj,status=status.HTTP_202_ACCEPTED)
+        # returnData = dict(request.data)
+        obj = {k: v[0] if len(v) == 1 else v for k, v in request.data.lists()}
+        # returnObj = { "login":returnData['user''login'],"password":returnData['user''password']}
+        return Response(obj,status=status.HTTP_202_ACCEPTED)
 
 def homepage(request):
     return render(request, 'home.html')

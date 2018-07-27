@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * QuickBlox JavaScript SDK
+ * LAApp JavaScript SDK
  * WebRTC Module (WebRTC client)
  */
 
@@ -16,13 +16,13 @@
  * - onDevicesChangeListener()
  */
 
-var WebRTCSession = require('./qbWebRTCSession');
-var WebRTCSignalingProcessor = require('./qbWebRTCSignalingProcessor');
-var WebRTCSignalingProvider = require('./qbWebRTCSignalingProvider');
-var Helpers = require('./qbWebRTCHelpers');
-var RTCPeerConnection = require('./qbRTCPeerConnection');
-var SignalingConstants = require('./qbWebRTCSignalingConstants');
-var Utils = require('../../qbUtils');
+var WebRTCSession = require('./WebRTCSession');
+var WebRTCSignalingProcessor = require('./WebRTCSignalingProcessor');
+var WebRTCSignalingProvider = require('./WebRTCSignalingProvider');
+var Helpers = require('./WebRTCHelpers');
+var RTCPeerConnection = require('./RTCPeerConnection');
+var SignalingConstants = require('./WebRTCSignalingConstants');
+var Utils = require('../../utils');
 
 function WebRTCClient(service, connection) {
     if (WebRTCClient.__instance) {
@@ -45,7 +45,7 @@ function WebRTCClient(service, connection) {
     this.sessions = {};
 
     // Enable the listener (disabled in some browsers)
-    if(navigator.mediaDevices.ondevicechange && navigator.mediaDevices.ondevicechange.enabled) {
+    if (navigator.mediaDevices.ondevicechange && navigator.mediaDevices.ondevicechange.enabled) {
         navigator.mediaDevices.ondevicechange.enabled = true;
     }
 
@@ -68,9 +68,9 @@ WebRTCClient.prototype.getMediaDevices = function(spec) {
             Helpers.traceWarning(errMsg);
         } else {
             navigator.mediaDevices.enumerateDevices().then(function(devices) {
-                if(spec) {
+                if (spec) {
                     devices.forEach(function(device, i) {
-                        if(device.kind === spec) {
+                        if (device.kind === spec) {
                             specDevices.push(device);
                         }
                     });
@@ -190,16 +190,16 @@ WebRTCClient.prototype._onCallListener = function(userID, sessionID, extension) 
 
         this.signalingProvider.sendMessage(userID, extension, SignalingConstants.SignalingType.REJECT);
 
-        if (typeof this.onInvalidEventsListener  === 'function'){
+        if (typeof this.onInvalidEventsListener === 'function') {
             Utils.safeCallbackCall(this.onInvalidEventsListener, 'onCall', sessionID, userID, userInfo);
         }
     } else {
         var session = this.sessions[sessionID],
             bandwidth = +userInfo.bandwidth || 0;
 
-            if (!session) {
-                session = this._createAndStoreSession(sessionID, extension.callerID, extension.opponentsIDs, extension.callType, bandwidth);
-                
+        if (!session) {
+            session = this._createAndStoreSession(sessionID, extension.callerID, extension.opponentsIDs, extension.callType, bandwidth);
+
             if (typeof this.onCallListener === 'function') {
                 Utils.safeCallbackCall(this.onCallListener, session, userInfo);
             }
@@ -223,7 +223,7 @@ WebRTCClient.prototype._onAcceptListener = function(userID, sessionID, extension
 
             session.processOnAccept(userID, extension);
         } else {
-            if (typeof this.onInvalidEventsListener === 'function'){
+            if (typeof this.onInvalidEventsListener === 'function') {
                 Utils.safeCallbackCall(this.onInvalidEventsListener, 'onAccept', session, userID, userInfo);
             }
 
@@ -267,7 +267,7 @@ WebRTCClient.prototype._onStopListener = function(userID, sessionID, extension) 
         // Need to make this asynchronously, to keep the strophe handler alive
         setTimeout(session.processOnStop.bind(session), 10, userID, extension);
     } else {
-        if (typeof this.onInvalidEventsListener === 'function'){
+        if (typeof this.onInvalidEventsListener === 'function') {
             Utils.safeCallbackCall(this.onInvalidEventsListener, 'onStop', session, userID, userInfo);
         }
 

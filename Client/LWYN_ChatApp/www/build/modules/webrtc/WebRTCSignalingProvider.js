@@ -10,10 +10,10 @@
 
 require('strophe.js');
 
-var Helpers = require('./qbWebRTCHelpers');
-var SignalingConstants = require('./qbWebRTCSignalingConstants');
-var Utils = require('../../qbUtils');
-var config = require('../../qbConfig');
+var Helpers = require('./WebRTCHelpers');
+var SignalingConstants = require('./WebRTCSignalingConstants');
+var Utils = require('../../utils');
+var config = require('../../config');
 
 function WebRTCSignalingProvider(service, connection) {
     this.service = service;

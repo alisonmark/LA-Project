@@ -14,11 +14,11 @@
  * - onCallStatsReport(session, userId, stats, error)
  */
 
-var config = require('../../qbConfig');
-var RTCPeerConnection = require('./qbRTCPeerConnection');
-var Utils = require('../../qbUtils');
-var Helpers = require('./qbWebRTCHelpers');
-var SignalingConstants = require('./qbWebRTCSignalingConstants');
+var config = require('../../config');
+var RTCPeerConnection = require('./RTCPeerConnection');
+var Utils = require('../../utils');
+var Helpers = require('./WebRTCHelpers');
+var SignalingConstants = require('./WebRTCSignalingConstants');
 
 /**
  * State of a session
@@ -75,7 +75,7 @@ function WebRTCSession(params) {
  * @param {function} A callback to get a result of the function
  */
 WebRTCSession.prototype.getUserMedia = function(params, callback) {
-    if(!navigator.mediaDevices.getUserMedia) {
+    if (!navigator.mediaDevices.getUserMedia) {
         throw new Error('getUserMedia() is not supported in your browser');
     }
 
@@ -157,7 +157,7 @@ WebRTCSession.prototype.attachMediaStream = function(id, stream, options) {
             elem.play();
         };
     } else {
-        throw new Error('Unable to attach media stream, element ' + id  + ' is undefined');
+        throw new Error('Unable to attach media stream, element ' + id + ' is undefined');
     }
 };
 
@@ -262,7 +262,7 @@ WebRTCSession.prototype.switchMediaTracks = function(deviceIds, callback) {
      * @param {object} stream - The stream from new media device
      */
 
-    if(!navigator.mediaDevices.getUserMedia) {
+    if (!navigator.mediaDevices.getUserMedia) {
         throw new Error('getUserMedia() is not supported in your browser');
     }
 
@@ -272,7 +272,7 @@ WebRTCSession.prototype.switchMediaTracks = function(deviceIds, callback) {
     if (deviceIds && deviceIds.audio) {
         self.mediaParams.audio.deviceId = deviceIds.audio;
     }
-    
+
     if (deviceIds && deviceIds.video) {
         self.mediaParams.video.deviceId = deviceIds.video;
     }
@@ -300,13 +300,13 @@ WebRTCSession.prototype._replaceTracks = function(stream) {
         newStreamTracks = stream.getTracks();
 
     this.detachMediaStream(elemId);
-    
+
     newStreamTracks.forEach(function(track) {
         localStream.addTrack(track);
     });
 
     this.attachMediaStream(elemId, stream, ops);
-    
+
     for (var userId in peers) {
         _replaceTracksForPeer(peers[userId]);
     }
@@ -380,12 +380,12 @@ WebRTCSession.prototype.accept = function(extension) {
 
     Helpers.trace('Accept, extension: ' + JSON.stringify(ext.userInfo));
 
-    if(self.state === WebRTCSession.State.ACTIVE) {
+    if (self.state === WebRTCSession.State.ACTIVE) {
         Helpers.traceError("Can't accept, the session is already active, return.");
         return;
     }
 
-    if(self.state === WebRTCSession.State.CLOSED) {
+    if (self.state === WebRTCSession.State.CLOSED) {
         Helpers.traceError("Can't accept, the session is already closed, return.");
         self.stop({});
         return;
@@ -403,7 +403,7 @@ WebRTCSession.prototype.accept = function(extension) {
     var oppIDs = self._uniqueOpponentsIDsWithoutInitiator();
 
     /** in a case of group video chat */
-    if(oppIDs.length > 0){
+    if (oppIDs.length > 0) {
         var offerTime = (self.acceptCallTime - self.startCallTime) / 1000;
         self._startWaitingOfferOrAnswerTimer(offerTime);
 
@@ -412,7 +412,7 @@ WebRTCSession.prototype.accept = function(extension) {
          * We have a rule: If a userID1 > userID2 then a userID1 should call to userID2.
          */
         oppIDs.forEach(function(opID, i, arr) {
-            if(self.currentUserID > opID){
+            if (self.currentUserID > opID) {
                 /** call to the user */
                 self._callInternal(opID, {}, true);
             }
@@ -437,10 +437,10 @@ WebRTCSession.prototype._acceptInternal = function(userID, extension) {
             peerConnection.addLocalStream(self.localStream);
         }
 
-        peerConnection.setRemoteSessionDescription('offer', peerConnection.getRemoteSDP(), function(error){
-            if(error){
+        peerConnection.setRemoteSessionDescription('offer', peerConnection.getRemoteSDP(), function(error) {
+            if (error) {
                 Helpers.traceError("'setRemoteSessionDescription' error: " + error);
-            }else{
+            } else {
                 Helpers.trace("'setRemoteSessionDescription' success");
 
                 peerConnection.getAndSetLocalSessionDescription(self.callType, function(err) {
@@ -459,7 +459,7 @@ WebRTCSession.prototype._acceptInternal = function(userID, extension) {
                 });
             }
         });
-    }else{
+    } else {
         Helpers.traceError("Can't accept the call, there is no information about peer connection by some reason.");
     }
 };
@@ -484,7 +484,7 @@ WebRTCSession.prototype.reject = function(extension) {
     ext.callerID = self.initiatorID;
     ext.opponentsIDs = self.opponentsIDs;
 
-    if(peersLen > 0){
+    if (peersLen > 0) {
         for (var key in self.peerConnections) {
             var peerConnection = self.peerConnections[key];
             self.signalingProvider.sendMessage(peerConnection.userID, ext, SignalingConstants.SignalingType.REJECT);
@@ -507,7 +507,7 @@ WebRTCSession.prototype.stop = function(extension) {
 
     self.state = WebRTCSession.State.HUNGUP;
 
-    if(self.answerTimer) {
+    if (self.answerTimer) {
         self._clearAnswerTimer();
     }
 
@@ -516,7 +516,7 @@ WebRTCSession.prototype.stop = function(extension) {
     ext.callerID = self.initiatorID;
     ext.opponentsIDs = self.opponentsIDs;
 
-    if(peersLen > 0){
+    if (peersLen > 0) {
         for (var key in self.peerConnections) {
             var peerConnection = self.peerConnections[key];
 
@@ -535,7 +535,7 @@ WebRTCSession.prototype.closeConnection = function(userId) {
     var self = this,
         peer = this.peerConnections[userId];
 
-    if(!peer) {
+    if (!peer) {
         Helpers.traceWarn('Not found connection with user (' + userId + ')');
         return false;
     }
@@ -560,7 +560,7 @@ WebRTCSession.prototype.update = function(extension) {
 
     Helpers.trace('Update, extension: ' + JSON.stringify(extension));
 
-    if(extension === null){
+    if (extension === null) {
         Helpers.trace("extension is null, no parameters to update");
         return;
     }
@@ -601,27 +601,27 @@ WebRTCSession.prototype.processOnCall = function(callerID, extension) {
     oppIDs.forEach(function(opID, i, arr) {
         var pConn = self.peerConnections[opID];
 
-        if(pConn){
-            if(opID == callerID){
+        if (pConn) {
+            if (opID == callerID) {
                 pConn.updateRemoteSDP(extension.sdp);
 
                 /** The group call logic starts here */
-                if(callerID != self.initiatorID && self.state === WebRTCSession.State.ACTIVE){
+                if (callerID != self.initiatorID && self.state === WebRTCSession.State.ACTIVE) {
                     self._acceptInternal(callerID, {});
                 }
             }
         } else {
             /** create peer connections for each opponent */
             var peerConnection;
-            if(opID != callerID && self.currentUserID > opID){
+            if (opID != callerID && self.currentUserID > opID) {
                 peerConnection = self._createPeer(opID, 'offer');
-            }else{
+            } else {
                 peerConnection = self._createPeer(opID, 'answer');
             }
 
             self.peerConnections[opID] = peerConnection;
 
-            if(opID == callerID){
+            if (opID == callerID) {
                 peerConnection.updateRemoteSDP(extension.sdp);
                 self._startAnswerTimer();
             }
@@ -632,17 +632,17 @@ WebRTCSession.prototype.processOnCall = function(callerID, extension) {
 WebRTCSession.prototype.processOnAccept = function(userID, extension) {
     var peerConnection = this.peerConnections[userID];
 
-    if(peerConnection){
+    if (peerConnection) {
         peerConnection._clearDialingTimer();
 
-        peerConnection.setRemoteSessionDescription('answer', extension.sdp, function(error){
-            if(error){
+        peerConnection.setRemoteSessionDescription('answer', extension.sdp, function(error) {
+            if (error) {
                 Helpers.traceError("'setRemoteSessionDescription' error: " + error);
-            }else{
+            } else {
                 Helpers.trace("'setRemoteSessionDescription' success");
             }
         });
-    }else{
+    } else {
         Helpers.traceError("Ignore 'OnAccept', there is no information about peer connection by some reason.");
     }
 };
@@ -652,9 +652,9 @@ WebRTCSession.prototype.processOnReject = function(userID, extension) {
 
     this._clearWaitingOfferOrAnswerTimer();
 
-    if(peerConnection){
+    if (peerConnection) {
         peerConnection.release();
-    }else{
+    } else {
         Helpers.traceError("Ignore 'OnReject', there is no information about peer connection by some reason.");
     }
 
@@ -690,9 +690,9 @@ WebRTCSession.prototype.processOnStop = function(userID, extension) {
 WebRTCSession.prototype.processOnIceCandidates = function(userID, extension) {
     var peerConnection = this.peerConnections[userID];
 
-    if(peerConnection){
+    if (peerConnection) {
         peerConnection.addCandidates(extension.iceCandidates);
-    }else{
+    } else {
         Helpers.traceError("Ignore 'OnIceCandidates', there is no information about peer connection by some reason.");
     }
 };
@@ -832,7 +832,7 @@ WebRTCSession.prototype._closeSessionIfAllConnectionsClosed = function() {
             because state 'closed' comes after few time from Safari, but signaling state comes instantly
             */
             peerState = peerCon.iceConnectionState === 'closed' ? 'closed' : peerCon.signalingState;
-        } catch(err) {
+        } catch (err) {
             Helpers.traceError(err);
             // need to set peerState to 'closed' on error. FF will crashed without this part.
             peerState = 'closed';
@@ -857,16 +857,16 @@ WebRTCSession.prototype._closeSessionIfAllConnectionsClosed = function() {
     }
 };
 
-WebRTCSession.prototype._closeLocalMediaStream = function(){
+WebRTCSession.prototype._closeLocalMediaStream = function() {
     /**
      * https://developers.google.com/web/updates/2015/07/mediastream-deprecations?hl=en
      */
     if (this.localStream) {
-        this.localStream.getAudioTracks().forEach(function (audioTrack) {
+        this.localStream.getAudioTracks().forEach(function(audioTrack) {
             audioTrack.stop();
         });
 
-        this.localStream.getVideoTracks().forEach(function (videoTrack) {
+        this.localStream.getVideoTracks().forEach(function(videoTrack) {
             videoTrack.stop();
         });
 
@@ -876,33 +876,33 @@ WebRTCSession.prototype._closeLocalMediaStream = function(){
 
 WebRTCSession.prototype._muteStream = function(bool, type) {
     if (type === 'audio' && this.localStream.getAudioTracks().length > 0) {
-        this.localStream.getAudioTracks().forEach(function (track) {
+        this.localStream.getAudioTracks().forEach(function(track) {
             track.enabled = !!bool;
         });
         return;
     }
 
     if (type === 'video' && this.localStream.getVideoTracks().length > 0) {
-        this.localStream.getVideoTracks().forEach(function (track) {
+        this.localStream.getVideoTracks().forEach(function(track) {
             track.enabled = !!bool;
         });
         return;
     }
 };
 
-WebRTCSession.prototype._clearAnswerTimer = function(){
-    if(this.answerTimer){
+WebRTCSession.prototype._clearAnswerTimer = function() {
+    if (this.answerTimer) {
         Helpers.trace("_clearAnswerTimer");
         clearTimeout(this.answerTimer);
         this.answerTimer = null;
     }
 };
 
-WebRTCSession.prototype._startAnswerTimer = function(){
+WebRTCSession.prototype._startAnswerTimer = function() {
     Helpers.trace("_startAnswerTimer");
 
     var self = this;
-    var answerTimeoutCallback = function (){
+    var answerTimeoutCallback = function() {
         Helpers.trace("_answerTimeoutCallback");
 
         if (typeof self.onSessionCloseListener === 'function') {
@@ -912,12 +912,12 @@ WebRTCSession.prototype._startAnswerTimer = function(){
         self.answerTimer = null;
     };
 
-    var answerTimeInterval = config.webrtc.answerTimeInterval*1000;
+    var answerTimeInterval = config.webrtc.answerTimeInterval * 1000;
     this.answerTimer = setTimeout(answerTimeoutCallback, answerTimeInterval);
 };
 
 WebRTCSession.prototype._clearWaitingOfferOrAnswerTimer = function() {
-    if(this.waitingOfferOrAnswerTimer){
+    if (this.waitingOfferOrAnswerTimer) {
         Helpers.trace("_clearWaitingOfferOrAnswerTimer");
         clearTimeout(this.waitingOfferOrAnswerTimer);
         this.waitingOfferOrAnswerTimer = null;
@@ -930,7 +930,7 @@ WebRTCSession.prototype._startWaitingOfferOrAnswerTimer = function(time) {
         waitingOfferOrAnswerTimeoutCallback = function() {
             Helpers.trace("waitingOfferOrAnswerTimeoutCallback");
 
-            if(Object.keys(self.peerConnections).length > 0) {
+            if (Object.keys(self.peerConnections).length > 0) {
                 Object.keys(self.peerConnections).forEach(function(key) {
                     var peerConnection = self.peerConnections[key];
                     if (peerConnection.state === RTCPeerConnection.State.CONNECTING || peerConnection.state === RTCPeerConnection.State.NEW) {
@@ -944,19 +944,19 @@ WebRTCSession.prototype._startWaitingOfferOrAnswerTimer = function(time) {
 
     Helpers.trace("_startWaitingOfferOrAnswerTimer, timeout: " + timeout);
 
-    this.waitingOfferOrAnswerTimer = setTimeout(waitingOfferOrAnswerTimeoutCallback, timeout*1000);
+    this.waitingOfferOrAnswerTimer = setTimeout(waitingOfferOrAnswerTimeoutCallback, timeout * 1000);
 };
 
-WebRTCSession.prototype._uniqueOpponentsIDs = function(){
+WebRTCSession.prototype._uniqueOpponentsIDs = function() {
     var self = this;
     var opponents = [];
 
-    if(this.initiatorID !== this.currentUserID){
+    if (this.initiatorID !== this.currentUserID) {
         opponents.push(this.initiatorID);
     }
 
     this.opponentsIDs.forEach(function(userID, i, arr) {
-        if(userID != self.currentUserID){
+        if (userID != self.currentUserID) {
             opponents.push(parseInt(userID));
         }
     });
@@ -964,12 +964,12 @@ WebRTCSession.prototype._uniqueOpponentsIDs = function(){
     return opponents;
 };
 
-WebRTCSession.prototype._uniqueOpponentsIDsWithoutInitiator = function(){
+WebRTCSession.prototype._uniqueOpponentsIDsWithoutInitiator = function() {
     var self = this;
     var opponents = [];
 
     this.opponentsIDs.forEach(function(userID, i, arr) {
-        if(userID != self.currentUserID){
+        if (userID != self.currentUserID) {
             opponents.push(parseInt(userID));
         }
     });
@@ -981,12 +981,12 @@ WebRTCSession.prototype.toString = function sessionToString() {
     return 'ID: ' + this.ID + ', initiatorID:  ' + this.initiatorID + ', opponentsIDs: ' + this.opponentsIDs + ', state: ' + this.state + ', callType: ' + this.callType;
 };
 
-function generateUUID(){
+function generateUUID() {
     var d = new Date().getTime();
     var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = (d + Math.random()*16)%16 | 0;
-        d = Math.floor(d/16);
-        return (c=='x' ? r : (r&0x3|0x8)).toString(16);
+        var r = (d + Math.random() * 16) % 16 | 0;
+        d = Math.floor(d / 16);
+        return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
     });
     return uuid;
 }
@@ -999,9 +999,9 @@ function _prepareExtension(extension) {
     var ext = {};
 
     try {
-        if ( ({}).toString.call(extension) === '[object Object]' ) {
+        if (({}).toString.call(extension) === '[object Object]') {
             ext.userInfo = extension;
-            ext = JSON.parse( JSON.stringify(ext).replace(/null/g, "\"\"") );
+            ext = JSON.parse(JSON.stringify(ext).replace(/null/g, "\"\""));
         } else {
             throw new Error('Invalid type of "extension" object.');
         }
@@ -1013,10 +1013,10 @@ function _prepareExtension(extension) {
 }
 
 function _prepareIceServers(iceServers) {
-    var  iceServersCopy = JSON.parse(JSON.stringify(iceServers));
+    var iceServersCopy = JSON.parse(JSON.stringify(iceServers));
 
     Object.keys(iceServersCopy).forEach(function(c, i, a) {
-        if(iceServersCopy[i].hasOwnProperty('url')) {
+        if (iceServersCopy[i].hasOwnProperty('url')) {
             iceServersCopy[i].urls = iceServersCopy[i].url;
         } else {
             iceServersCopy[i].url = iceServersCopy[i].urls;

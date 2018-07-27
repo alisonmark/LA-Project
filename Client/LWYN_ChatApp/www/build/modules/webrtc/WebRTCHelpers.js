@@ -5,7 +5,7 @@
  * WebRTC Module (WebRTC helpers)
  */
 
-var config = require('../../qbConfig');
+var config = require('../../config');
 
 var WebRTCHelpers = {};
 
@@ -39,7 +39,7 @@ WebRTCHelpers = {
 
     getLocalTime: function() {
         var arr = new Date().toString().split(' ');
-        return arr.slice(1,5).join('-');
+        return arr.slice(1, 5).join('-');
     },
 
     // Convert Data URI to Blob
@@ -51,7 +51,7 @@ WebRTCHelpers = {
             arr.push(binary.charCodeAt(i));
         }
 
-        return new Blob([new Uint8Array(arr)], {type: contentType});
+        return new Blob([new Uint8Array(arr)], { type: contentType });
     },
 
     /**
@@ -64,7 +64,7 @@ WebRTCHelpers = {
 
         if (ua) {
             var ffInfo = ua.match(/(?:firefox)[ \/](\d+)/i) || [];
-            version = ffInfo[1] ? + ffInfo[1] : null;
+            version = ffInfo[1] ? +ffInfo[1] : null;
         }
 
         return version;
@@ -81,7 +81,7 @@ WebRTCHelpers = {
                 var sVer = ua.match(/(?:version)[ \/](\d+)/i) || [];
 
                 if (sVer) {
-                    version = sVer[1] ? + sVer[1] : null;
+                    version = sVer[1] ? +sVer[1] : null;
                 } else {
                     version = null;
                 }

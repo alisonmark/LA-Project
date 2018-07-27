@@ -7,7 +7,7 @@
 
 require('strophe.js');
 
-var SignalingConstants = require('./qbWebRTCSignalingConstants');
+var SignalingConstants = require('./WebRTCSignalingConstants');
 
 function WebRTCSignalingProcessor(service, delegate, connection) {
     var self = this;
@@ -29,37 +29,37 @@ function WebRTCSignalingProcessor(service, delegate, connection) {
 
         switch (signalType) {
             case SignalingConstants.SignalingType.CALL:
-                if (typeof self.delegate._onCallListener === 'function'){
+                if (typeof self.delegate._onCallListener === 'function') {
                     self.delegate._onCallListener(userId, sessionId, extension);
                 }
                 break;
 
             case SignalingConstants.SignalingType.ACCEPT:
-                if (typeof self.delegate._onAcceptListener === 'function'){
+                if (typeof self.delegate._onAcceptListener === 'function') {
                     self.delegate._onAcceptListener(userId, sessionId, extension);
                 }
                 break;
 
             case SignalingConstants.SignalingType.REJECT:
-                if (typeof self.delegate._onRejectListener === 'function'){
+                if (typeof self.delegate._onRejectListener === 'function') {
                     self.delegate._onRejectListener(userId, sessionId, extension);
                 }
                 break;
 
             case SignalingConstants.SignalingType.STOP:
-                if (typeof self.delegate._onStopListener === 'function'){
+                if (typeof self.delegate._onStopListener === 'function') {
                     self.delegate._onStopListener(userId, sessionId, extension);
                 }
                 break;
 
             case SignalingConstants.SignalingType.CANDIDATE:
-                if (typeof self.delegate._onIceCandidatesListener === 'function'){
+                if (typeof self.delegate._onIceCandidatesListener === 'function') {
                     self.delegate._onIceCandidatesListener(userId, sessionId, extension);
                 }
                 break;
 
             case SignalingConstants.SignalingType.PARAMETERS_CHANGED:
-                if (typeof self.delegate._onUpdateListener === 'function'){
+                if (typeof self.delegate._onUpdateListener === 'function') {
                     self.delegate._onUpdateListener(userId, sessionId, extension);
                 }
                 break;
@@ -71,7 +71,9 @@ function WebRTCSignalingProcessor(service, delegate, connection) {
             return null;
         }
 
-        var extension = {}, iceCandidates = [], opponents = [],
+        var extension = {},
+            iceCandidates = [],
+            opponents = [],
             candidate, opponent, items, childrenNodes;
 
         for (var i = 0, len = extraParams.childNodes.length; i < len; i++) {
@@ -106,7 +108,7 @@ function WebRTCSignalingProcessor(service, delegate, connection) {
                     if (nodeTextContentSize > 4096) {
                         var wholeNodeContent = "";
 
-                        for (var t=0; t<extraParams.childNodes[i].childNodes.length; ++t) {
+                        for (var t = 0; t < extraParams.childNodes[i].childNodes.length; ++t) {
                             wholeNodeContent += extraParams.childNodes[i].childNodes[t].textContent;
                         }
                         extension[extraParams.childNodes[i].tagName] = wholeNodeContent;
@@ -122,10 +124,10 @@ function WebRTCSignalingProcessor(service, delegate, connection) {
                 }
             }
         }
-        if (iceCandidates.length > 0){
+        if (iceCandidates.length > 0) {
             extension.iceCandidates = iceCandidates;
         }
-        if (opponents.length > 0){
+        if (opponents.length > 0) {
             extension.opponentsIDs = opponents;
         }
 

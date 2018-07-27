@@ -1,0 +1,29 @@
+
+curl -H "Content-Type: application/json" -d "id=99999&application_id=9999&auth_key=t56EOP9X3M47vWq" -X POST http://localhost:8989/api/session.json
+
+
+SESSION json
+			REQUESTS
+
+<QueryDict: {'application_id': ['72332'], 'auth_key': ['t56EOP9X3M47vWq'], 'nonce': ['9393'], 'timestamp': ['1532529790'], 
+'user[login]': ['chatuserweb1'], 'user[password]': ['chatuserweb1'], 'signature': ['7345ab276e8eed59649eb686af74dfb762ccd843']}>
+
+
+
+			RESPONSE
+
+{"session":{"application_id":72332,"created_at":"2018-07-25T14:22:24Z","id":780956503,"
+nonce":5054,"token":"4272f2268dea3b1c400378656fbc7a9fc4011a8c","ts":1532528540,"updated_at":"2018-07-25T14:22:24Z","user_id":55460299,"_id":"780956503"}}
+
+
+
+browserify -r ./config.js:config -r ./utils.js:utils -r ./main.js:main -r ./auth.js:auth > app.js
+
+login
+:
+"quanlv1"
+password
+:
+"china2902"
+
+browserify -r ./config.js:config -r ./utils.js:utils -r ./main.js:main -r ./auth.js:auth -r ./modules/webrtc/WebRTCClient.js:WebRTCClient -r ./modules/webrtc/WebRTCHelpers.js:WebRTCHelpers > app.js

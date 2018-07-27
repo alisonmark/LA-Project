@@ -12,7 +12,7 @@ function AuthProxy(service) {
 AuthProxy.prototype = {
 
     getSession: function(callback) {
-        $.ajax({ url: Utils.getUrl(config.urls.session) }, function(err, res) {
+        this.service.ajax({ url: Utils.getUrl(config.urls.session) }, function(err, res) {
             if (err) {
                 callback(err, null);
             } else {
@@ -40,7 +40,7 @@ AuthProxy.prototype = {
         message = generateAuthMsg(params);
         message.signature = signMessage(message, config.creds.authSecret);
 
-        $.ajax({ url: Utils.getUrl(config.urls.session), type: 'POST', data: message },
+        this.service.ajax({ url: Utils.getUrl(config.urls.session), type: 'POST', data: message },
             function(err, res) {
                 if (err) {
                     callback(err, null);
@@ -80,11 +80,11 @@ AuthProxy.prototype = {
             }
         }
 
-        $.ajax(ajaxParams, handleResponce);
+        this.service.ajax(ajaxParams, handleResponce);
     },
 
     logout: function(callback) {
-        $.ajax({ url: Utils.getUrl(config.urls.login), type: 'DELETE', dataType: 'text' }, callback);
+        this.service.ajax({ url: Utils.getUrl(config.urls.login), type: 'DELETE', dataType: 'text' }, callback);
     }
 
 };
